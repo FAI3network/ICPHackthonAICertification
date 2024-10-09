@@ -1,0 +1,27 @@
+{
+  "canisters": {
+    "ICPHackthonAICertification_backend": {
+      "candid": "src/ICPHackthonAICertification_backend/ICPHackthonAICertification_backend.did",
+      "package": "ICPHackthonAICertification_backend",
+      "type": "rust"
+    },
+    "ICPHackthonAICertification_frontend": {
+      "dependencies": [
+        "ICPHackthonAICertification_backend"
+      ],
+      "source": [
+        "src/ICPHackthonAICertification_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "ICPHackthonAICertification_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
