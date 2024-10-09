@@ -28,9 +28,22 @@ If you want to test your project locally, you can use the following commands:
 ```bash
 # Starts the replica, running in the background
 dfx start --background
+# Or
+dfx start --clean
+# To stop
+dfx stop
+sudo kill [pid]
 
 # Deploys your canisters to the replica and generates your candid interface
-dfx deploy
+dfx deploy --playground
+# Or
+dfx deploy ICPHackthonAICertification_backend --playground
+dfx deploy ICPHackthonAICertification_frontend --playground
+
+# Troubleshooting
+cargo build
+sudo apt install build-essential
+rustup target add wasm32-unknown-unknown
 ```
 
 Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.

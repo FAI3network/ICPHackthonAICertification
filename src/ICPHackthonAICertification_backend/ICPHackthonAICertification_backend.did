@@ -1,3 +1,9 @@
 service : {
     "greet": (text) -> (text) query;
+    "add_data_point": (bool, bool, bool) -> ();
+    "statistical_parity_difference": () -> (int) query;
+    "disparate_impact": () -> (int) query;
+    "average_odds_difference": () -> (int) query;
+    "equal_opportunity_difference": () -> (int) query;
+    "add_example_data_points": () -> ();
 }
