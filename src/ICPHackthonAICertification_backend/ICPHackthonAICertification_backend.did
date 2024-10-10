@@ -1,9 +1,29 @@
 service : {
     "greet": (text) -> (text) query;
-    "add_data_point": (bool, bool, bool) -> ();
-    "statistical_parity_difference": () -> (int) query;
-    "disparate_impact": () -> (int) query;
-    "average_odds_difference": () -> (int) query;
-    "equal_opportunity_difference": () -> (int) query;
-    "add_example_data_points": () -> ();
+
+    // User authentication
+    "login": () -> ();
+
+    // Model management
+    "add_model": (text) -> (nat);
+    "delete_model": (nat) -> ();
+
+    // Data point management
+    "add_data_point": (nat, bool, bool, bool) -> ();
+    "bulk_insert_data_points": (nat, vec record { bool; bool; bool }) -> ();
+
+    // Fairness metrics
+    "statistical_parity_difference": (nat) -> (float32) query;
+    "disparate_impact": (nat) -> (float32) query;
+    "average_odds_difference": (nat) -> (float32) query;
+    "equal_opportunity_difference": (nat) -> (float32) query;
+    "calculate_all_metrics": (nat) -> (record {
+        statistical_parity_difference: float32;
+        disparate_impact: float32;
+        average_odds_difference: float32;
+        equal_opportunity_difference: float32;
+    });
+
+    // Example data
+    "add_example_data_points": (nat) -> ();
 }
