@@ -1,0 +1,32 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /* max-width: 1170px; */
+  /* margin: auto; */
+  align-content: center;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+
+.navbar__logo {
+  display: flex;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.navbar__menu {
+  display: flex;
+  gap: 1rem;
+  font-size: 18px;
+}
+
+.navbar__menu a {
+  text-decoration: none;
+  color: black;
+}

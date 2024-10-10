@@ -1,0 +1,188 @@
+body {
+  font-family: sans-serif;
+  font-size: .875rem;
+  line-height: 1.25rem;
+  margin: 0;
+}
+
+img {
+  max-width: 50vw;
+  max-height: 25vw;
+  display: block;
+  margin: auto;
+}
+
+form {
+  display: flex;
+  justify-content: center;
+  gap: 0.5em;
+  flex-flow: row wrap;
+  max-width: 40vw;
+  margin: auto;
+  align-items: baseline;
+}
+
+button[type="submit"] {
+  padding: 5px 20px;
+  margin: 10px auto;
+  float: right;
+}
+
+#greeting {
+  margin: 10px auto;
+  padding: 10px 60px;
+  border: 1px solid #222;
+}
+
+#greeting:empty {
+  display: none;
+}
+
+.hero {
+  text-align: center;
+  padding: 100px 20px;
+  background-color: #fff;
+}
+
+.hero-title {
+  font-size: 50px;
+  font-weight: bold;
+  color: black;
+}
+
+.hero-title-red {
+  color: #f56a6a;
+}
+
+.hero-image {
+  width: 100px;
+  height: 100px;
+}
+
+.hero-subtitle {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.highlight {
+  background-color: #f56a6a;
+  color: white;
+  padding: 0 5px;
+}
+
+.hero-description {
+  font-size: 18px;
+  color: #888;
+  margin-bottom: 30px;
+}
+
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.btn-demo {
+  background-color: #f56a6a;
+  color: white;
+}
+
+.btn-demo:hover {
+  background-color: #e04848;
+}
+
+.btn-whitepaper {
+  background-color: #f9e29f;
+  color: black;
+}
+
+.btn-whitepaper:hover {
+  background-color: #e5d38a;
+}
+
+.yellow-section {
+  background-color: #fde4b2;
+}
+
+.features-container {
+  display: flex;
+  justify-content: space-around;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 0;
+}
+
+.feature {
+  text-align: center;
+  width: 30%;
+}
+
+.feature img {
+  width: 50px; /* Adjust icon size */
+  margin-bottom: 20px;
+}
+
+.feature h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.feature p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Public Section */
+.public-section {
+  padding: 60px 0;
+  text-align: center;
+}
+
+.public-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+}
+
+.news-articles {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.article {
+  width: 30%;
+  text-align: center;
+}
+
+.article img {
+  width: 100%; /* Image covers the full width of its container */
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.article p {
+  font-size: 1rem;
+  color: #333;
+}
+
+.howitworks-container {
+  display: flex;
+  justify-content: space-between;
+  width: 1200px;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}

@@ -1,0 +1,50 @@
+/* Navbar.css */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background-color: #fff;
+}
+
+.logo {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.logo:hover {
+  cursor: pointer;
+}
+
+.logo-black {
+  color: black;
+}
+
+.logo-red {
+  color: #f56a6a;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-item {
+  color: #888;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.nav-link {
+  color: unset;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  text-decoration: underline;
+}
+
+.nav-item:hover {
+  text-decoration: underline;
+}

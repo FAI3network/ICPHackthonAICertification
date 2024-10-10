@@ -1,0 +1,126 @@
+/* General styles */
+.table-container {
+  width: 100%;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.search-bar {
+  max-width: 320px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.columns-button {
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 16px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+}
+
+.columns-dropdown {
+  position: absolute;
+  right: 0;
+  margin-top: 8px;
+  width: 14rem;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.dropdown-option {
+  padding: 8px 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-option input {
+  margin-right: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fffaeb;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.table th {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  border-bottom: 2px solid #ddd;
+}
+
+.table tr {
+  transition: background-color 0.3s;
+}
+
+.table tr:hover {
+  background-color: #ece8ef;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.table tbody tr.selected {
+  background-color: #f0f0f0;
+}
+
+.table .status-badge {
+  display: inline-block;
+  margin-left: 16px;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+
+.status-badge-green {
+  background-color: #cdffcd80;
+  color: #007f00;
+}
+
+.status-badge-yellow {
+  background-color: #ffeccc;
+  color: #ce8500;
+}
+
+.status-badge-red {
+  background-color: #ffe0e0;
+  color: #d60e0e;
+}
+
+.modelName {
+  text-align: left;
+  text-decoration: none;
+  color: unset;
+}
+
+.modelName:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}

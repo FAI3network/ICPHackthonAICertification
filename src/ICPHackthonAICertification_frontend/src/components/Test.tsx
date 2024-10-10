@@ -2,9 +2,9 @@
 function Test() {
 
     return (
-    <main>
-     test
-    </main>
+        <main>
+            test
+        </main>
     );
 }
 
