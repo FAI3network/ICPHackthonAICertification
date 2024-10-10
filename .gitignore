@@ -1,6 +1,7 @@
 Cargo.lock
 package-lock.json
 package.json
+
 # Various IDEs and Editors
 .vscode/
 .idea/
