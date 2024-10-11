@@ -38,10 +38,20 @@ button[type="submit"] {
   display: none;
 }
 
+.max-width {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .hero {
   text-align: center;
   padding: 100px 20px;
   background-color: #fff;
+}
+
+.hero-content {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 .hero-title {
@@ -74,6 +84,7 @@ button[type="submit"] {
   font-size: 18px;
   color: #888;
   margin-bottom: 30px;
+  line-height: 1.7;
 }
 
 .hero-buttons {
@@ -109,7 +120,7 @@ button[type="submit"] {
 }
 
 .yellow-section {
-  background-color: #fde4b2;
+  background-color: #ffe7a4;
 }
 
 .features-container {
@@ -159,13 +170,21 @@ button[type="submit"] {
   margin: 0 auto;
 }
 
+.news-articles > table > tr > th {
+  padding: 30px;
+}
+
 .article {
-  width: 30%;
+  width: 100%;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-content: center;
 }
 
 .article img {
-  width: 100%; /* Image covers the full width of its container */
+  width: 50%; /* Image covers the full width of its container */
   border-radius: 5px;
   margin-bottom: 15px;
 }
@@ -177,7 +196,7 @@ button[type="submit"] {
 
 .howitworks-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   width: 1200px;
 }
 
@@ -186,3 +205,57 @@ button[type="submit"] {
   justify-content: center;
   align-content: center;
 }
+
+.howitworks-image {
+  width: 50%;
+}
+
+.howitworks-content {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 0;
+  position: relative;
+}
+
+.floating-tab {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background-color: #f48b8b;
+  padding: 20px;
+  width: 250px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  color: #333;
+  text-align: left;
+  animation: fadeInUp 1s;
+}
+
+.yellow-container {
+  position: relative; 
+  background-color: #f8e8a0;
+  padding: 0 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.content {
+  margin-right: 200px;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(0, 40px, 0);
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+}
+

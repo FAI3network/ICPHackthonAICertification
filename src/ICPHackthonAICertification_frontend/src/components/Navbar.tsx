@@ -8,11 +8,13 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-      <div className="logo" onClick={() => navigate("")}>
-        <span className="logo-black">FAI</span><span className="logo-red">3</span>
-      </div>
-      <div className="nav-links">
-        <Link to="/leaderboard" className="nav-link">Leaderboard</Link>
+      <div className='navbar-body'>
+        <div className="logo" onClick={() => navigate("")}>
+          <span className="logo-black">FAI</span><span className="logo-red">3</span>
+        </div>
+        <div className="nav-links">
+          <Link to="/leaderboard" className="nav-link">Leaderboard</Link>
+        </div>
       </div>
     </nav>
   );

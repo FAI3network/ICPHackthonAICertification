@@ -1,10 +1,29 @@
-import { SetStateAction, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import { ICPHackthonAICertification_backend } from '../../../declarations/ICPHackthonAICertification_backend';
 import { useNavigate } from 'react-router-dom';
+
+const instructions = [
+  {
+    title: '1- Submit your model',
+    description: 'Upload your code, test set and weights',
+    image: 'submitCode.png'
+  },
+  {
+    title: '2- Get report',
+    description: 'Get report with the scores calculated',
+    image: 'report.png'
+  },
+  {
+    title: '3- See leaderboard',
+    description: 'See your score in the leaderboard and how you compare to others',
+    image: 'leaderboard.png'
+  }
+]
 
 function App() {
   const navigate = useNavigate();
   const [greeting, setGreeting] = useState('');
+  const [currentInstruction, setCurrentInstruction] = useState(instructions[0]);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -16,6 +35,17 @@ function App() {
     }
     return false;
   }
+
+  function cycleInstructions() {
+    const currentIndex = instructions.indexOf(currentInstruction);
+    const nextIndex = (currentIndex + 1) % instructions.length;
+    setCurrentInstruction(instructions[nextIndex]);
+  }
+
+  useEffect(() => {
+    const interval = setInterval(cycleInstructions, 5000);
+    return () => clearInterval(interval);
+  }, [currentInstruction]);
 
   return (
     <div>
@@ -36,7 +66,7 @@ function App() {
       </section>
 
       <section className="yellow-section">
-        <div className="features-container">
+        <div className="features-container max-width">
           <div className="feature">
             <img src="ai_certification_icon.png" alt="AI certification on chain" />
             <h3>AI certification on chain</h3>
@@ -64,21 +94,34 @@ function App() {
       <section className="public-section">
         <h2>We need public, transparent and trustworthy AI certification</h2>
         <div className="news-articles">
-          <div className="article">
-            <img src="AmazonSexist.png" alt="BBC article" />
-          </div>
-          <div className="article">
-            <img src="appleSexist.png" alt="CNN Business article" />
-          </div>
-          <div className="article">
-            <img src="natureRacism.png" alt="Nature article" />
-          </div>
+          <table>
+            <tr>
+              <th>
+                <div className="article">
+                  <img src="AmazonSexist.png" alt="BBC article" />
+                </div>
+              </th>
+              <th>
+                <div className="article">
+                  <img src="appleSexist.png" alt="CNN Business article" />
+                </div>
+              </th>
+            </tr>
+
+            <tr>
+              <th colSpan={2}>
+                <div className="article">
+                  <img src="natureRacism.png" alt="Nature article" />
+                </div>
+              </th>
+            </tr>
+          </table>
         </div>
       </section>
 
-      <section className="yellow-section center">
+      <section className="yellow-container">
         <div className="howitworks-container">
-          <div>
+          <div className="howitworks-content">
             <h2>How it works</h2>
             <p>
               1- Submit your model
@@ -90,9 +133,14 @@ function App() {
               3- Check the leaderboard
             </p>
           </div>
-          <div className='howitworks-image'>
-            <img src="submitCode.png" alt="How it works" />
+          <div className="howitworks-image">
+            <img src={`${currentInstruction.image}`} alt="How it works" />
           </div>
+        </div>
+
+        <div className="floating-tab">
+          <h3>{currentInstruction.title}</h3>
+          <p>{currentInstruction.description}</p>
         </div>
       </section>
     </div>

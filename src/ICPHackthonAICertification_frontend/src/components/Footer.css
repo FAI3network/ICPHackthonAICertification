@@ -1,0 +1,83 @@
+/* Footer styles */
+.footer {
+  display: flex;
+  justify-content: space-around;
+  padding: 40px;
+  font-family: Arial, sans-serif;
+  color: #444;
+  position: relative;
+  height: 200px;
+  align-items: center;
+}
+
+.footer > table {
+  width: 100%;
+}
+
+.footer-section {
+  text-align: center;
+}
+
+.footer-section h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.footer-section p {
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #555;
+}
+
+.footer-section a {
+  font-size: 14px;
+  color: #777;
+  text-decoration: none;
+}
+
+.footer-section a:hover {
+  color: #000;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.social-icons a {
+  font-size: 20px;
+  color: #777;
+  text-decoration: none;
+}
+
+.social-icons a:hover {
+  color: #000;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  color: #777;
+}
+
+.scroll-top {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 40px;
+  height: 40px;
+  background-color: #777;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+.scroll-top:hover {
+  background-color: #444;
+}
