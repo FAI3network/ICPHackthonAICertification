@@ -1,5 +1,4 @@
-import { SetStateAction, useEffect, useState } from 'react';
-import { ICPHackthonAICertification_backend } from '../../../declarations/ICPHackthonAICertification_backend';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const instructions = [
@@ -22,19 +21,7 @@ const instructions = [
 
 function App() {
   const navigate = useNavigate();
-  const [greeting, setGreeting] = useState('');
   const [currentInstruction, setCurrentInstruction] = useState(instructions[0]);
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const name = (event.target as HTMLFormElement).elements.namedItem('name') as HTMLInputElement | null;
-    const nameValue = name?.value;
-    if (nameValue) {
-      ICPHackthonAICertification_backend.greet(nameValue).then((greeting: SetStateAction<string>) => {
-      });
-    }
-    return false;
-  }
 
   function cycleInstructions() {
     const currentIndex = instructions.indexOf(currentInstruction);
