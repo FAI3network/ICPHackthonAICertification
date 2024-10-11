@@ -113,22 +113,6 @@ fn add_model(model_name: String) -> u128 {
 }
 
 #[ic_cdk::update]
-fn delete_model(model_id: u128) {
-    check_cycles_before_action();
-    let caller: Principal = ic_cdk::api::caller();
-    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
-        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
-        let user: &mut User = users.get_mut(&caller).expect("User not found");
-        if let Some(model) = user.models.get(&model_id) {
-            if model.user_id != caller {
-                ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
-            }
-        }
-        user.models.remove(&model_id).expect("Model not found or not owned by user");
-    });
-}
-
-#[ic_cdk::update]
 fn add_data_point(model_id: u128, target: bool, privileged: bool, predicted: bool) {
     check_cycles_before_action();
     let caller: Principal = ic_cdk::api::caller();
@@ -157,6 +141,39 @@ fn add_data_point(model_id: u128, target: bool, privileged: bool, predicted: boo
             model.data_points.push(data_point);
             *next_data_point_id.borrow_mut() += 1;
         });
+    });
+}
+
+#[ic_cdk::update]
+fn delete_model(model_id: u128) {
+    check_cycles_before_action();
+    let caller: Principal = ic_cdk::api::caller();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
+        let user: &mut User = users.get_mut(&caller).expect("User not found");
+        if let Some(model) = user.models.get(&model_id) {
+            if model.user_id != caller {
+                ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+            }
+        }
+        user.models.remove(&model_id).expect("Model not found or not owned by user");
+    });
+}
+
+#[ic_cdk::update]
+fn delete_data_point(model_id: u128, data_point_id: u128) {
+    check_cycles_before_action();
+    let caller: Principal = ic_cdk::api::caller();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users = users.borrow_mut();
+        let user = users.get_mut(&caller).expect("User not found");
+        let model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
+        if model.user_id != caller {
+            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        }
+        let data_point_index = model.data_points.iter().position(|d| d.data_point_id == data_point_id)
+            .expect("Data point not found");
+        model.data_points.remove(data_point_index);
     });
 }
 
@@ -265,26 +282,14 @@ fn calculate_equal_opportunity_difference(model_id: u128) -> f32 {
 }
 
 #[ic_cdk::update]
-fn calculate_all_metrics(model_id: u128) {
-    check_cycles_before_action();
-    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
-        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
-        let user: &mut User = users.get_mut(&ic_cdk::api::caller()).expect("User not found");
-        let model: &mut Model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
-        
-        if model.user_id != ic_cdk::api::caller() {
-            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
-        }
-
-        model.metrics.statistical_parity_difference = Some(calculate_statistical_parity_difference(model_id));
-        model.metrics.disparate_impact = Some(calculate_disparate_impact(model_id));
-        model.metrics.average_odds_difference = Some(calculate_average_odds_difference(model_id));
-        model.metrics.equal_opportunity_difference = Some(calculate_equal_opportunity_difference(model_id));
-    });
+fn calculate_all_metrics(model_id: u128) -> (f32, f32, f32, f32) {
+    (calculate_statistical_parity_difference(model_id),
+    calculate_disparate_impact(model_id),
+    calculate_average_odds_difference(model_id),
+    calculate_equal_opportunity_difference(model_id))
 }
 
 // Getters
-
 #[ic_cdk::query]
 fn get_all_models() -> Vec<Model> {
     check_cycles_before_action();
