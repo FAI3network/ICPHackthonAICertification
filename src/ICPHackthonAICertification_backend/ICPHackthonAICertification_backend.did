@@ -1,9 +1,4 @@
 service : {
-    "greet": (text) -> (text) query;
-
-    // User authentication
-    "login": () -> ();
-
     // Model management
     "add_model": (text) -> (nat);
     "delete_model": (nat) -> ();
@@ -12,11 +7,13 @@ service : {
     "add_data_point": (nat, bool, bool, bool) -> ();
     "bulk_insert_data_points": (nat, vec record { bool; bool; bool }) -> ();
 
-    // Fairness metrics
-    "statistical_parity_difference": (nat) -> (float32) query;
-    "disparate_impact": (nat) -> (float32) query;
-    "average_odds_difference": (nat) -> (float32) query;
-    "equal_opportunity_difference": (nat) -> (float32) query;
+    // Fairness metrics queries
+    "calculate_statistical_parity_difference": (nat) -> (float32) query;
+    "calculate_disparate_impact": (nat) -> (float32) query;
+    "calculate_average_odds_difference": (nat) -> (float32) query;
+    "calculate_equal_opportunity_difference": (nat) -> (float32) query;
+    
+    // Calculate all fairness metrics
     "calculate_all_metrics": (nat) -> (record {
         statistical_parity_difference: float32;
         disparate_impact: float32;
@@ -26,4 +23,22 @@ service : {
 
     // Example data
     "add_example_data_points": (nat) -> ();
+
+    // Model retrieval queries
+    "get_all_models": () -> (vec record {
+        id: nat;
+        name: text;
+        user_id: principal;
+    }) query;
+    "get_model_data_points": (nat) -> (vec record {
+        feature1: bool;
+        feature2: bool;
+        feature3: bool;
+    }) query;
+    "get_model_metrics": (nat) -> (record {
+        statistical_parity_difference: float32;
+        disparate_impact: float32;
+        average_odds_difference: float32;
+        equal_opportunity_difference: float32;
+    }) query;
 }

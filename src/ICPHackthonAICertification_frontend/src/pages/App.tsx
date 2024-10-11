@@ -4,18 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 function App() {
   const navigate = useNavigate();
-  const [greeting, setGreeting] = useState('');
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const name = (event.target as HTMLFormElement).elements.namedItem('name') as HTMLInputElement | null;
-    const nameValue = name?.value;
-    if (nameValue) {
-      ICPHackthonAICertification_backend.greet(nameValue).then((greeting: SetStateAction<string>) => {
-      });
-    }
-    return false;
-  }
 
   return (
     <div>

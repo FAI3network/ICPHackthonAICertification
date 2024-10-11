@@ -1,12 +1,44 @@
-#[ic_cdk::query]
-fn greet(name: String) -> String {
-    format!("Hello, {}!", name)
+#[ic_cdk::update]
+fn add_example_data_points(model_id: u128) {
+    check_cycles_before_action();
+    add_data_point(model_id, true, true, true);   // TP for privileged
+    add_data_point(model_id, false, true, false); // TN for privileged
+    add_data_point(model_id, true, false, true);  // TP for unprivileged
+    add_data_point(model_id, false, false, false);// TN for unprivileged
+    add_data_point(model_id, true, true, true);   // TP for privileged
+    add_data_point(model_id, false, true, false); // TN for privileged
+    add_data_point(model_id, true, false, true);  // TP for unprivileged
+    add_data_point(model_id, true, false, true);  // TP for unprivileged
 }
-use candid::Principal;
+
+use candid::{CandidType, Deserialize, Principal};
 use std::collections::HashMap;
 use std::cell::RefCell;
 
-#[derive(Clone, Debug)]
+// Cycles management
+
+const CYCLE_THRESHOLD: u64 = 1_000_000_000; 
+
+#[ic_cdk::query]
+fn check_cycles() -> u64 {
+    ic_cdk::api::canister_balance() // Returns the current cycle balance
+}
+
+#[ic_cdk::update]
+fn stop_if_low_cycles() {
+    let cycles: u64 = ic_cdk::api::canister_balance();
+    if cycles < CYCLE_THRESHOLD {
+        ic_cdk::trap("Cycle balance too low, stopping execution to avoid canister deletion.");
+    }
+}
+
+fn check_cycles_before_action() {
+    stop_if_low_cycles();
+}
+
+// Structs
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct DataPoint {
     data_point_id: u128,
     target: bool,
@@ -15,7 +47,7 @@ pub struct DataPoint {
     timestamp: u64,
 }
 
-#[derive(Clone, Debug)]
+#[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct Metrics {
     statistical_parity_difference: Option<f32>,
     disparate_impact: Option<f32>,
@@ -23,7 +55,7 @@ pub struct Metrics {
     equal_opportunity_difference: Option<f32>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct Model {
     model_id: u128,
     model_name: String,
@@ -32,7 +64,7 @@ pub struct Model {
     metrics: Metrics,
 }
 
-#[derive(Clone, Debug)]
+#[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct User {
     user_id: Principal,
     models: HashMap<u128, Model>,
@@ -44,27 +76,21 @@ thread_local! {
     static NEXT_DATA_POINT_ID: RefCell<u128> = RefCell::new(1);
 }
 
-#[ic_cdk::update]
-fn login() {
-    let caller = ic_cdk::api::caller();
-    USERS.with(|users| {
-        let mut users = users.borrow_mut();
-        users.entry(caller).or_insert(User {
-            user_id: caller,
-            models: HashMap::new(),
-        });
-    });
-}
+// Operations
 
 #[ic_cdk::update]
 fn add_model(model_name: String) -> u128 {
-    let caller = ic_cdk::api::caller();
-    USERS.with(|users| {
-        let mut users = users.borrow_mut();
-        let user = users.get_mut(&caller).expect("User not logged in");
+    check_cycles_before_action();
+    let caller: Principal = ic_cdk::api::caller();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
+        let user: &mut User = users.entry(caller).or_insert(User {
+            user_id: caller,
+            models: HashMap::new(),
+        });
 
-        NEXT_MODEL_ID.with(|next_model_id| {
-            let model_id = *next_model_id.borrow();
+        NEXT_MODEL_ID.with(|next_model_id: &RefCell<u128>| {
+            let model_id: u128 = *next_model_id.borrow();
             user.models.insert(
                 model_id,
                 Model {
@@ -88,29 +114,39 @@ fn add_model(model_name: String) -> u128 {
 
 #[ic_cdk::update]
 fn delete_model(model_id: u128) {
-    let caller = ic_cdk::api::caller();
-    USERS.with(|users| {
-        let mut users = users.borrow_mut();
-        let user = users.get_mut(&caller).expect("User not logged in");
+    check_cycles_before_action();
+    let caller: Principal = ic_cdk::api::caller();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
+        let user: &mut User = users.get_mut(&caller).expect("User not found");
+        if let Some(model) = user.models.get(&model_id) {
+            if model.user_id != caller {
+                ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+            }
+        }
         user.models.remove(&model_id).expect("Model not found or not owned by user");
     });
 }
 
 #[ic_cdk::update]
 fn add_data_point(model_id: u128, target: bool, privileged: bool, predicted: bool) {
-    let caller = ic_cdk::api::caller();
-    let timestamp = ic_cdk::api::time();
+    check_cycles_before_action();
+    let caller: Principal = ic_cdk::api::caller();
+    let timestamp: u64 = ic_cdk::api::time();
 
-    USERS.with(|users| {
-        let mut users = users.borrow_mut();
-        let user = users.get_mut(&caller).expect("User not logged in");
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
+        let user: &mut User = users.get_mut(&caller).expect("User not found");
 
-        let model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
+        let model: &mut Model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
+        if model.user_id != caller {
+            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        }
 
-        NEXT_DATA_POINT_ID.with(|next_data_point_id| {
-            let data_point_id = *next_data_point_id.borrow();
+        NEXT_DATA_POINT_ID.with(|next_data_point_id: &RefCell<u128>| {
+            let data_point_id: u128 = *next_data_point_id.borrow();
 
-            let data_point = DataPoint {
+            let data_point: DataPoint = DataPoint {
                 data_point_id,
                 target,
                 privileged,
@@ -126,86 +162,119 @@ fn add_data_point(model_id: u128, target: bool, privileged: bool, predicted: boo
 
 #[ic_cdk::update]
 fn calculate_statistical_parity_difference(model_id: u128) -> f32 {
-    USERS.with(|users| {
-        let users = users.borrow();
-        let user = users.get(&ic_cdk::api::caller()).expect("User not logged in");
-        let model = user.models.get(&model_id).expect("Model not found or not owned by user");
+    check_cycles_before_action();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
+        let user: &mut User = users.get_mut(&ic_cdk::api::caller()).expect("User not found");
+        let model: &mut Model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
+        
+        if model.user_id != ic_cdk::api::caller() {
+            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        }
 
         let (privileged_count, unprivileged_count, privileged_positive_count, unprivileged_positive_count) =
             calculate_group_counts(&model.data_points);
 
         assert!(privileged_count > 0 && unprivileged_count > 0, "No data for one of the groups");
 
-        let privileged_probability = privileged_positive_count as f32 / privileged_count as f32;
-        let unprivileged_probability = unprivileged_positive_count as f32 / unprivileged_count as f32;
+        let privileged_probability: f32 = privileged_positive_count as f32 / privileged_count as f32;
+        let unprivileged_probability: f32 = unprivileged_positive_count as f32 / unprivileged_count as f32;
 
-        unprivileged_probability - privileged_probability
+        let result: f32 = unprivileged_probability - privileged_probability;
+        model.metrics.statistical_parity_difference = Some(result);
+        result
     })
 }
 
 #[ic_cdk::update]
 fn calculate_disparate_impact(model_id: u128) -> f32 {
-    USERS.with(|users| {
-        let users = users.borrow();
-        let user = users.get(&ic_cdk::api::caller()).expect("User not logged in");
-        let model = user.models.get(&model_id).expect("Model not found or not owned by user");
+    check_cycles_before_action();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
+        let user: &mut User = users.get_mut(&ic_cdk::api::caller()).expect("User not found");
+        let model: &mut Model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
+        
+        if model.user_id != ic_cdk::api::caller() {
+            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        }
 
         let (privileged_count, unprivileged_count, privileged_positive_count, unprivileged_positive_count) =
             calculate_group_counts(&model.data_points);
 
         assert!(privileged_count > 0 && unprivileged_count > 0, "No data for one of the groups");
 
-        let privileged_probability = privileged_positive_count as f32 / privileged_count as f32;
-        let unprivileged_probability = unprivileged_positive_count as f32 / unprivileged_count as f32;
+        let privileged_probability: f32 = privileged_positive_count as f32 / privileged_count as f32;
+        let unprivileged_probability: f32 = unprivileged_positive_count as f32 / unprivileged_count as f32;
 
         assert!(privileged_probability > 0.0, "Privileged group has no positive outcomes");
 
-        unprivileged_probability / privileged_probability
+        let result: f32 = unprivileged_probability / privileged_probability;
+        model.metrics.disparate_impact = Some(result);
+        result
     })
 }
 
 #[ic_cdk::update]
 fn calculate_average_odds_difference(model_id: u128) -> f32 {
-    USERS.with(|users| {
-        let users = users.borrow();
-        let user = users.get(&ic_cdk::api::caller()).expect("User not logged in");
-        let model = user.models.get(&model_id).expect("Model not found or not owned by user");
+    check_cycles_before_action();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
+        let user: &mut User = users.get_mut(&ic_cdk::api::caller()).expect("User not found");
+        let model: &mut Model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
+        
+        if model.user_id != ic_cdk::api::caller() {
+            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        }
 
         let (privileged_tp, privileged_fp, privileged_tn, privileged_fn, unprivileged_tp, unprivileged_fp, unprivileged_tn, unprivileged_fn) =
             calculate_confusion_matrix(&model.data_points);
 
-        let privileged_tpr = privileged_tp as f32 / (privileged_tp + privileged_fn) as f32;
-        let unprivileged_tpr = unprivileged_tp as f32 / (unprivileged_tp + unprivileged_fn) as f32;
-        let privileged_fpr = privileged_fp as f32 / (privileged_fp + privileged_tn) as f32;
-        let unprivileged_fpr = unprivileged_fp as f32 / (unprivileged_fp + unprivileged_tn) as f32;
+        let privileged_tpr: f32 = privileged_tp as f32 / (privileged_tp + privileged_fn) as f32;
+        let unprivileged_tpr: f32 = unprivileged_tp as f32 / (unprivileged_tp + unprivileged_fn) as f32;
+        let privileged_fpr: f32 = privileged_fp as f32 / (privileged_fp + privileged_tn) as f32;
+        let unprivileged_fpr: f32 = unprivileged_fp as f32 / (unprivileged_fp + unprivileged_tn) as f32;
 
-        ((unprivileged_fpr - privileged_fpr) + (unprivileged_tpr - privileged_tpr)) / 2.0
+        let result: f32 = ((unprivileged_fpr - privileged_fpr) + (unprivileged_tpr - privileged_tpr)) / 2.0;
+        model.metrics.average_odds_difference = Some(result);
+        result
     })
 }
 
 #[ic_cdk::update]
 fn calculate_equal_opportunity_difference(model_id: u128) -> f32 {
-    USERS.with(|users| {
-        let users = users.borrow();
-        let user = users.get(&ic_cdk::api::caller()).expect("User not logged in");
-        let model = user.models.get(&model_id).expect("Model not found or not owned by user");
+    check_cycles_before_action();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
+        let user: &mut User = users.get_mut(&ic_cdk::api::caller()).expect("User not found");
+        let model: &mut Model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
+        
+        if model.user_id != ic_cdk::api::caller() {
+            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        }
 
         let (privileged_tp, privileged_fn, unprivileged_tp, unprivileged_fn) =
             calculate_true_positive_false_negative(&model.data_points);
 
-        let privileged_tpr = privileged_tp as f32 / (privileged_tp + privileged_fn) as f32;
-        let unprivileged_tpr = unprivileged_tp as f32 / (unprivileged_tp + unprivileged_fn) as f32;
+        let privileged_tpr: f32 = privileged_tp as f32 / (privileged_tp + privileged_fn) as f32;
+        let unprivileged_tpr: f32 = unprivileged_tp as f32 / (unprivileged_tp + unprivileged_fn) as f32;
 
-        unprivileged_tpr - privileged_tpr
+        let result: f32 = unprivileged_tpr - privileged_tpr;
+        model.metrics.equal_opportunity_difference = Some(result);
+        result
     })
 }
 
 #[ic_cdk::update]
 fn calculate_all_metrics(model_id: u128) {
-    USERS.with(|users| {
-        let mut users = users.borrow_mut();
-        let user = users.get_mut(&ic_cdk::api::caller()).expect("User not logged in");
-        let model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
+    check_cycles_before_action();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
+        let user: &mut User = users.get_mut(&ic_cdk::api::caller()).expect("User not found");
+        let model: &mut Model = user.models.get_mut(&model_id).expect("Model not found or not owned by user");
+        
+        if model.user_id != ic_cdk::api::caller() {
+            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        }
 
         model.metrics.statistical_parity_difference = Some(calculate_statistical_parity_difference(model_id));
         model.metrics.disparate_impact = Some(calculate_disparate_impact(model_id));
@@ -214,26 +283,60 @@ fn calculate_all_metrics(model_id: u128) {
     });
 }
 
+// Getters
 
-#[ic_cdk::update]
-fn add_example_data_points(model_id: u128) {
-    add_data_point(model_id, true, true, true);   // TP for privileged
-    add_data_point(model_id, false, true, false); // TN for privileged
-    add_data_point(model_id, true, false, true);  // TP for unprivileged
-    add_data_point(model_id, false, false, false);// TN for unprivileged
-    add_data_point(model_id, true, true, true);   // TP for privileged
-    add_data_point(model_id, false, true, false); // TN for privileged
-    add_data_point(model_id, true, false, true);  // TP for unprivileged
-    add_data_point(model_id, true, false, true);  // TP for unprivileged
+#[ic_cdk::query]
+fn get_all_models() -> Vec<Model> {
+    check_cycles_before_action();
+    let caller: Principal = ic_cdk::api::caller();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let users: std::cell::Ref<'_, HashMap<Principal, User>> = users.borrow();
+        let user: &User = users.get(&caller).expect("User not found");
+        user.models.values().cloned().collect()
+    })
+}
+
+#[ic_cdk::query]
+fn get_model_data_points(model_id: u128) -> Vec<DataPoint> {
+    check_cycles_before_action();
+    let caller: Principal = ic_cdk::api::caller();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let users: std::cell::Ref<'_, HashMap<Principal, User>> = users.borrow();
+        let user: &User = users.get(&caller).expect("User not found");
+        let model: &Model = user.models.get(&model_id).expect("Model not found or not owned by user");
+        
+        if model.user_id != caller {
+            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        }
+        
+        model.data_points.clone()
+    })
+}
+
+#[ic_cdk::query]
+fn get_model_metrics(model_id: u128) -> Metrics {
+    check_cycles_before_action();
+    let caller: Principal = ic_cdk::api::caller();
+    USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
+        let users: std::cell::Ref<'_, HashMap<Principal, User>> = users.borrow();
+        let user: &User = users.get(&caller).expect("User not found");
+        let model: &Model = user.models.get(&model_id).expect("Model not found or not owned by user");
+        
+        if model.user_id != caller {
+            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        }
+
+        model.metrics.clone()
+    })
 }
 
 // Helper functions
 
 fn calculate_group_counts(data_points: &Vec<DataPoint>) -> (i128, i128, i128, i128) {
-    let mut privileged_count = 0;
-    let mut unprivileged_count = 0;
-    let mut privileged_positive_count = 0;
-    let mut unprivileged_positive_count = 0;
+    let mut privileged_count: i128 = 0;
+    let mut unprivileged_count: i128 = 0;
+    let mut privileged_positive_count: i128 = 0;
+    let mut unprivileged_positive_count: i128 = 0;
 
     for point in data_points {
         if point.privileged {
@@ -291,18 +394,3 @@ fn calculate_true_positive_false_negative(data_points: &Vec<DataPoint>) -> (i128
 
     (privileged_tp, privileged_fn, unprivileged_tp, unprivileged_fn)
 }
-
-#[ic_cdk::query]
-fn check_cycles() -> u64 {
-    ic_cdk::api::canister_balance() // Returns the current cycle balance
-}
-
-#[ic_cdk::update]
-fn stop_if_low_cycles(threshold: u64) {
-    let cycles = ic_cdk::api::canister_balance();
-    if cycles < threshold {
-        ic_cdk::trap("Cycle balance too low, stopping execution to avoid canister deletion.");
-    }
-}
-
-
