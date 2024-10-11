@@ -40,6 +40,14 @@ dfx deploy --playground
 dfx deploy ICPHackthonAICertification_backend --playground
 dfx deploy ICPHackthonAICertification_frontend --playground
 
+# Deply to IC and stop canisters
+dfx deploy --network ic
+dfx canister stop --network ic --all
+# Re-start
+dfx canister start --network ic --all
+https://bt6zq-vaaaa-aaaaj-azueq-cai.icp0.io/
+https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=bu77e-yyaaa-aaaaj-azuea-cai
+
 # Troubleshooting
 cargo build
 sudo apt install build-essential

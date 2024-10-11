@@ -81,6 +81,11 @@ thread_local! {
 #[ic_cdk::update]
 fn add_model(model_name: String) -> u128 {
     check_cycles_before_action();
+
+    if model_name.trim().is_empty() {
+        ic_cdk::api::trap("Error: Model name cannot be empty or null.");
+    }
+
     let caller: Principal = ic_cdk::api::caller();
     USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
         let mut users: std::cell::RefMut<'_, HashMap<Principal, User>> = users.borrow_mut();
@@ -293,45 +298,43 @@ fn calculate_all_metrics(model_id: u128) -> (f32, f32, f32, f32) {
 #[ic_cdk::query]
 fn get_all_models() -> Vec<Model> {
     check_cycles_before_action();
-    let caller: Principal = ic_cdk::api::caller();
     USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
         let users: std::cell::Ref<'_, HashMap<Principal, User>> = users.borrow();
-        let user: &User = users.get(&caller).expect("User not found");
-        user.models.values().cloned().collect()
+        users.values()
+            .flat_map(|user| user.models.values().cloned())
+            .collect()
     })
 }
 
 #[ic_cdk::query]
 fn get_model_data_points(model_id: u128) -> Vec<DataPoint> {
     check_cycles_before_action();
-    let caller: Principal = ic_cdk::api::caller();
     USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
         let users: std::cell::Ref<'_, HashMap<Principal, User>> = users.borrow();
-        let user: &User = users.get(&caller).expect("User not found");
-        let model: &Model = user.models.get(&model_id).expect("Model not found or not owned by user");
         
-        if model.user_id != caller {
-            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        for user in users.values() {
+            if let Some(model) = user.models.get(&model_id) {
+                return model.data_points.clone();
+            }
         }
-        
-        model.data_points.clone()
+
+        ic_cdk::api::trap("Model not found");
     })
 }
 
 #[ic_cdk::query]
 fn get_model_metrics(model_id: u128) -> Metrics {
     check_cycles_before_action();
-    let caller: Principal = ic_cdk::api::caller();
     USERS.with(|users: &RefCell<HashMap<Principal, User>>| {
         let users: std::cell::Ref<'_, HashMap<Principal, User>> = users.borrow();
-        let user: &User = users.get(&caller).expect("User not found");
-        let model: &Model = user.models.get(&model_id).expect("Model not found or not owned by user");
         
-        if model.user_id != caller {
-            ic_cdk::api::trap("Unauthorized: You are not the owner of this model");
+        for user in users.values() {
+            if let Some(model) = user.models.get(&model_id) {
+                return model.metrics.clone();
+            }
         }
 
-        model.metrics.clone()
+        ic_cdk::api::trap("Model not found");
     })
 }
 
