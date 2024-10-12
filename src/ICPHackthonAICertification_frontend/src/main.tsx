@@ -12,8 +12,7 @@ if (rootElement) {
       <Router>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<App />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route index element={<Leaderboard />} />
           </Route>
         </Routes>
       </Router>
