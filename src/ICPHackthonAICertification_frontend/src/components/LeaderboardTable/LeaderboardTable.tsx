@@ -40,7 +40,7 @@ export default function LeaderboardTable({ models }: LeaderboardTableProps) {
         </button>
       ),
       cell: ({ row }) => (
-        <Link to={`/model/${row.original.verifier}`} className="modelName">
+        <Link to={`/model/${row.original.id}`} className="modelName">
           {row.original.data.name}
         </Link>
       ),

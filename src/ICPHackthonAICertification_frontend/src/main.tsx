@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { App, Leaderboard } from './pages';
+import { App, Leaderboard, Model } from './pages';
 import './index.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from './components';
@@ -13,6 +13,7 @@ if (rootElement) {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Leaderboard />} />
+            <Route path="model/:modelId" element={<Model />} />
           </Route>
         </Routes>
       </Router>

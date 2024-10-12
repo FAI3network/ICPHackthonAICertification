@@ -56,4 +56,5 @@ service : {
     "get_all_models": () -> (vec Model) query;
     "get_model_data_points": (nat) -> (vec DataPoint) query;
     "get_model_metrics": (nat) -> (Metrics) query;
+    "get_model": (nat) -> (Model) query;
 }

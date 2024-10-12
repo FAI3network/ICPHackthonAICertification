@@ -1,0 +1,160 @@
+.chart-container {
+  display: flex;
+  aspect-ratio: 16/9;
+  justify-content: center;
+  font-size: 0.75rem;
+  /* This corresponds to `text-xs` in Tailwind */
+}
+
+/* Cartesian axis tick text color */
+.chart-container .recharts-cartesian-axis-tick text {
+  fill: var(--color-muted-foreground);
+  /* Replace with actual muted foreground color */
+}
+
+/* Cartesian grid line stroke */
+.chart-container .recharts-cartesian-grid line[stroke='#ccc'] {
+  stroke: var(--color-border, #ccc);
+  stroke-opacity: 0.5;
+  /* Tailwind border/50 */
+}
+
+/* Curve tooltip cursor stroke */
+.chart-container .recharts-curve.recharts-tooltip-cursor {
+  stroke: var(--color-border);
+}
+
+/* Dot stroke */
+.chart-container .recharts-dot[stroke='#fff'] {
+  stroke: transparent;
+}
+
+/* Layer outline */
+.chart-container .recharts-layer {
+  outline: none;
+}
+
+/* Polar grid stroke */
+.chart-container .recharts-polar-grid_[stroke='#ccc'] {
+  stroke: var(--color-border);
+}
+
+/* Radial bar background sector fill */
+.chart-container .recharts-radial-bar-background-sector {
+  fill: var(--color-muted);
+}
+
+/* Rectangle tooltip cursor fill */
+.chart-container .recharts-rectangle.recharts-tooltip-cursor {
+  fill: var(--color-muted);
+}
+
+/* Reference line stroke */
+.chart-container .recharts-reference-line_[stroke='#ccc'] {
+  stroke: var(--color-border);
+}
+
+/* Sector stroke */
+.chart-container .recharts-sector[stroke='#fff'] {
+  stroke: transparent;
+}
+
+/* Sector outline */
+.chart-container .recharts-sector {
+  outline: none;
+}
+
+/* Surface outline */
+.chart-container .recharts-surface {
+  outline: none;
+}
+
+/* Tooltip styles */
+.chart-tooltip {
+  display: grid;
+  min-width: 8rem;
+  align-items: start;
+  gap: 0.375rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  /* Equivalent to border-border/50 */
+  background-color: var(--color-background);
+  /* Replace with actual background color */
+  padding: 0.375rem 0.625rem;
+  /* px-2.5 py-1.5 */
+  font-size: 0.75rem;
+  /* text-xs */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  /* Equivalent to shadow-xl */
+}
+
+.chart-tooltip .tooltip-label {
+  font-weight: 500;
+}
+
+.chart-tooltip .tooltip-item {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.chart-tooltip .tooltip-value {
+  font-family: monospace;
+  font-weight: 500;
+}
+
+.chart-tooltip .tooltip-indicator {
+  height: 0.625rem;
+  width: 0.625rem;
+  border-radius: 0.125rem;
+  background-color: var(--color-bg);
+  /* Replace with actual color */
+  border: 1px solid var(--color-border);
+}
+
+/* Legend styles */
+.chart-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.chart-legend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.chart-legend .legend-icon {
+  height: 0.75rem;
+  width: 0.75rem;
+  background-color: var(--color);
+  border-radius: 0.125rem;
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  /* Equal to Tailwind's gap-4 */
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  /* Equal to Tailwind's gap-1.5 */
+}
+
+.legend-icon {
+  height: 0.75rem;
+  /* Equal to Tailwind's h-3 */
+  width: 0.75rem;
+  /* Equal to Tailwind's w-3 */
+  border-radius: 0.125rem;
+  /* Equal to Tailwind's rounded-sm */
+}
