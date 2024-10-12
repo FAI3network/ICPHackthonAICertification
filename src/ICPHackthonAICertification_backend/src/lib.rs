@@ -1,19 +1,46 @@
-#[ic_cdk::update]
-fn add_example_data_points(model_id: u128) {
-    check_cycles_before_action();
-    add_data_point(model_id, true, true, true);   // TP for privileged
-    add_data_point(model_id, false, true, false); // TN for privileged
-    add_data_point(model_id, true, false, true);  // TP for unprivileged
-    add_data_point(model_id, false, false, false);// TN for unprivileged
-    add_data_point(model_id, true, true, true);   // TP for privileged
-    add_data_point(model_id, false, true, false); // TN for privileged
-    add_data_point(model_id, true, false, true);  // TP for unprivileged
-    add_data_point(model_id, true, false, true);  // TP for unprivileged
-}
-
 use candid::{CandidType, Deserialize, Principal};
 use std::collections::HashMap;
 use std::cell::RefCell;
+use ic_cdk::api::call::CallResult;
+
+#[ic_cdk::update]
+async fn add_example_data_points(model_id: u128) -> CallResult<()> {
+    check_cycles_before_action();
+
+    let mut random_bytes = Vec::new();
+    let mut bit_index = 0;
+
+    for _ in 0..100 {
+        // Check if we need to fetch new random bytes before accessing the array
+        if bit_index >= random_bytes.len() * 8 {
+            let (new_bytes,): (Vec<u8>,) = ic_cdk::call(Principal::management_canister(), "raw_rand", ()).await?;
+            random_bytes = new_bytes;
+            bit_index = 0;
+        }
+
+        // Safely get the next random bit
+        let privileged = get_random_bit(&random_bytes, &mut bit_index);
+        let actual = get_random_bit(&random_bytes, &mut bit_index);
+        let predicted = get_random_bit(&random_bytes, &mut bit_index);
+        
+        add_data_point(model_id, privileged, actual, predicted);
+    }
+
+    Ok(())
+}
+
+fn get_random_bit(bytes: &[u8], index: &mut usize) -> bool {
+    let byte_index = *index / 8;
+    let bit_index = *index % 8;
+
+    if byte_index >= bytes.len() {
+        return false; 
+    }
+
+    *index += 1;
+
+    (bytes[byte_index] & (1 << bit_index)) != 0
+}
 
 // Cycles management
 

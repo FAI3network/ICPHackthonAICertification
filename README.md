@@ -34,6 +34,9 @@ dfx start --clean
 dfx stop
 sudo kill [pid]
 
+# Generate types declatations to use on the FE
+dfx generate ICPHackthonAICertification_backend
+
 # Deploys your canisters to the replica and generates your candid interface
 dfx deploy --playground
 # Or
